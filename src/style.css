@@ -1,18 +1,19 @@
 /* --- CSS Custom Properties (Variables) --- */
 :root {
+    /* ... переменные как были ... */
     --mp-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    --mp-background-color: #f0f2f5; /* Слегка сероватый фон страницы, как в соцсетях */
-    --mp-post-background-color: #ffffff; /* Белый фон поста */
-    --mp-text-color: #1c1e21; /* Темно-серый основной текст */
-    --mp-text-color-muted: #65676b; /* Серый для мета-информации */
-    --mp-link-color: #0d6efd; /* Стандартный синий цвет ссылок */
+    --mp-background-color: #f0f2f5;
+    --mp-post-background-color: #ffffff;
+    --mp-text-color: #1c1e21;
+    --mp-text-color-muted: #65676b;
+    --mp-link-color: #0d6efd;
     --mp-link-hover-color: #0a58ca;
-    --mp-border-radius: 8px; /* Скругление углов */
-    --mp-post-padding: 16px; /* Внутренний отступ поста */
-    --mp-post-margin-bottom: 16px; /* Внешний отступ снизу поста */
-    --mp-avatar-size: 40px; /* Размер аватара */
-    --mp-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Легкая тень, более плоская */
-    --mp-border-color: #ced4da; /* Цвет границ (если нужны) */
+    --mp-border-radius: 8px;
+    --mp-post-padding: 16px;
+    --mp-post-margin-bottom: 16px;
+    --mp-avatar-size: 40px;
+    --mp-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --mp-border-color: #ced4da;
 }
 
 /* --- Общие стили --- */
@@ -20,19 +21,28 @@ body {
     background-color: var(--mp-background-color) !important; /* Перебиваем возможные стили 4pda */
     font-family: var(--mp-font-family);
     color: var(--mp-text-color);
-    line-height: 1.5; /* Чуть плотнее, чем 1.6 */
+    line-height: 1.5;
 }
 
 /* Убираем стандартные элементы страницы, которые будем переделывать или скрывать */
 #logostrip, #submenu, #userlinks, #navstrip, .topic_controls, .maintitle, .bottom_action_row, #gfooter, .copyright, body > div[align="center"], #fast-reply, .category_controls {
-    /* display: none; */ /* Пока не скрываем, чтобы страница не была пустой */
+    /* display: none; */ /* Пока не скрываем */
 }
-.borderwrap > .bar { /* Скрываем нижнюю панель модерации */
+/* --- ВРЕМЕННО КОММЕНТИРУЕМ СКРЫТИЕ ПАНЕЛИ МОДЕРАЦИИ --- */
+/*
+.borderwrap > .bar {
    display: none;
 }
+*/
 
-/* Скрываем ОРИГИНАЛЬНЫЕ таблицы постов настольной версии */
-body #ipbwrapper table.ipbtable[data-post] {
+/* Скрываем ОРИГИНАЛЬНЫЕ таблицы постов настольной версии (ПРОСТЫЕ СЕЛЕКТОРЫ) */
+/* Сначала скрываем закрепленный пост */
+#topic-pin-content > table.ipbtable[data-post] {
+     display: none !important;
+     visibility: hidden; /* Дополнительно для надежности */
+}
+/* Затем скрываем все остальные посты (которые не в #topic-pin-content) */
+table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     display: none !important;
     visibility: hidden; /* Дополнительно для надежности */
 }
@@ -40,64 +50,67 @@ body #ipbwrapper table.ipbtable[data-post] {
 
 /* --- Стили для нового поста --- */
 .mp-post {
+    /* ... стили .mp-post как были ... */
     background-color: var(--mp-post-background-color);
     border-radius: var(--mp-border-radius);
     padding: var(--mp-post-padding);
-    margin: 0 auto var(--mp-post-margin-bottom) auto; /* Центрируем и добавляем отступ снизу */
+    margin: 0 auto var(--mp-post-margin-bottom) auto;
     box-shadow: var(--mp-box-shadow);
-    border: 1px solid #ddd; /* Добавим тонкую границу для четкости */
-    overflow: hidden; /* Чтобы float'ы или position:absolute не вылезали */
-    max-width: 900px; /* Ограничиваем ширину поста для читаемости на широких экранах */
+    border: 1px solid #ddd;
+    overflow: hidden;
+    max-width: 900px;
 }
+
+/* ... остальные стили .mp-* как были ... */
 
 /* --- Шапка поста --- */
 .mp-header {
     display: flex;
-    justify-content: space-between; /* Автор слева, мета/действия справа */
-    align-items: flex-start; /* Выравнивание по верху */
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 12px;
-    padding-bottom: 10px; /* Отступ снизу шапки */
-    border-bottom: 1px solid #eee; /* Линия под шапкой */
-    gap: 10px; /* Пространство между левой и правой частью */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
 }
 
 .mp-author-info {
     display: flex;
-    align-items: flex-start; /* Аватар и инфо рядом */
-    gap: 10px; /* Пространство между аватаром и текстом */
-    flex-grow: 1; /* Занимать доступное место */
+    align-items: flex-start;
+    gap: 10px;
+    flex-grow: 1;
 }
 
 .mp-avatar {
     width: var(--mp-avatar-size);
     height: var(--mp-avatar-size);
-    border-radius: 50%; /* Круглый аватар */
-    object-fit: cover; /* Масштабирование аватарки */
-    flex-shrink: 0; /* Не сжимать аватар */
-    border: 1px solid #eee; /* Тонкая рамка аватара */
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #eee;
 }
 
 .mp-author-details {
     display: flex;
-    flex-direction: column; /* Ник сверху, мета снизу */
-    padding-top: 2px; /* Небольшая коррекция по высоте */
+    flex-direction: column;
+    padding-top: 2px;
     flex-grow: 1;
 }
 
-.mp-author-line1 { /* Строка с ником и репутацией */
+.mp-author-line1 {
    display: flex;
    align-items: center;
-   flex-wrap: wrap; /* Перенос, если не влезает */
+   flex-wrap: wrap;
    gap: 8px;
    margin-bottom: 4px;
 }
 
 .mp-author-nick {
-    font-size: 1rem; /* Размер ника */
-    font-weight: 600; /* Полужирный ник */
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--mp-text-color);
     text-decoration: none;
-    margin-right: 5px; /* Отступ от репутации */
+    margin-right: 5px;
 }
 .mp-author-nick:hover {
     color: var(--mp-link-hover-color);
@@ -114,7 +127,7 @@ body #ipbwrapper table.ipbtable[data-post] {
     padding: 2px 6px;
     border-radius: 4px;
 }
-.mp-rep a { /* Кнопка + репутации */
+.mp-rep a {
     color: green;
     text-decoration: none;
     font-weight: bold;
@@ -125,24 +138,23 @@ body #ipbwrapper table.ipbtable[data-post] {
 }
 
 
-.mp-author-line2 { /* Строка со статусом и предупреждениями */
-    font-size: 0.8rem; /* Мелкий шрифт */
+.mp-author-line2 {
+    font-size: 0.8rem;
     color: var(--mp-text-color-muted);
 }
 
-/* Правая часть шапки */
 .mp-meta-actions {
     display: flex;
-    flex-direction: column; /* Мета сверху, действия снизу */
-    align-items: flex-end; /* Выравнивание по правому краю */
+    flex-direction: column;
+    align-items: flex-end;
     text-align: right;
-    flex-shrink: 0; /* Не сжимать */
+    flex-shrink: 0;
 }
 
 .mp-meta {
     font-size: 0.8rem;
     color: var(--mp-text-color-muted);
-    margin-bottom: 8px; /* Больше отступ до кнопки меню */
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -158,48 +170,43 @@ body #ipbwrapper table.ipbtable[data-post] {
     text-decoration: underline;
 }
 
-/* IP и разделитель скрыты по умолчанию */
 .mp-ip,
 .mp-separator {
     display: none;
 }
 
-/* Стили для показа IP, если понадобится */
 .mp-post[data-show-ip="true"] .mp-ip,
 .mp-post[data-show-ip="true"] .mp-separator {
     display: inline;
 }
 
-
-/* Скрываем чекбокс модератора по умолчанию */
 .mp-secheck {
-    display: none; /* Будет показан через JS, если canModerate=true */
-    margin-left: 8px; /* Отступ слева */
+    display: none;
+    margin-left: 8px;
     cursor: pointer;
-    vertical-align: middle; /* Выравнивание по центру строки */
+    vertical-align: middle;
 }
-.mp-secheck input { /* Скрываем реальный чекбокс */
+.mp-secheck input {
    opacity: 0;
    position: absolute;
    width: 1px;
    height: 1px;
 }
-.mp-secheck .check { /* Рисуем кастомный */
+.mp-secheck .check {
    display: inline-block;
    width: 16px;
    height: 16px;
    border: 1px solid var(--mp-border-color);
    border-radius: 3px;
-   vertical-align: -3px; /* Коррекция вертикального выравнивания */
+   vertical-align: -3px;
    transition: background-color 0.2s ease, border-color 0.2s ease;
    background-color: #fff;
-   position: relative; /* Для галочки */
+   position: relative;
 }
 .mp-secheck input:checked + .check {
     background-color: var(--mp-link-color);
     border-color: var(--mp-link-color);
 }
-/* Рисуем галочку */
 .mp-secheck input:checked + .check::after {
     content: '';
     display: block;
@@ -213,38 +220,36 @@ body #ipbwrapper table.ipbtable[data-post] {
     transform: rotate(45deg);
 }
 
-
-/* Меню действий */
 .mp-actions-menu-container {
-    position: relative; /* Для позиционирования меню */
+    position: relative;
 }
 
 .mp-actions-trigger {
     background: none;
-    border: 1px solid transparent; /* Граница для выравнивания размера */
+    border: 1px solid transparent;
     color: var(--mp-text-color-muted);
-    font-size: 1.3rem; /* Размер иконки "три точки" */
+    font-size: 1.3rem;
     font-weight: bold;
     padding: 0 6px;
     cursor: pointer;
     line-height: 1;
     border-radius: 4px;
-    height: 28px; /* Фиксированная высота */
-    width: 28px; /* Фиксированная ширина */
+    height: 28px;
+    width: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .mp-actions-trigger:hover {
     color: var(--mp-link-color);
-    background-color: #f0f2f5; /* Легкий фон при наведении */
+    background-color: #f0f2f5;
     border-color: #ddd;
 }
 
 .mp-actions-menu {
-    display: none; /* Скрыто по умолчанию */
+    display: none;
     position: absolute;
-    top: calc(100% + 4px); /* С небольшим отступом снизу триггера */
+    top: calc(100% + 4px);
     right: 0;
     background-color: var(--mp-post-background-color);
     border: 1px solid #ddd;
@@ -253,11 +258,11 @@ body #ipbwrapper table.ipbtable[data-post] {
     padding: 8px 0;
     margin: 0;
     list-style: none;
-    min-width: 160px; /* Минимальная ширина меню */
-    z-index: 1050; /* Поверх других элементов */
+    min-width: 160px;
+    z-index: 1050;
     overflow: hidden;
 }
-.mp-actions-menu.visible { /* Класс для показа меню */
+.mp-actions-menu.visible {
     display: block;
 }
 
@@ -272,35 +277,33 @@ body #ipbwrapper table.ipbtable[data-post] {
 }
 .mp-actions-menu li a:hover {
     background-color: #f0f2f5;
-    color: var(--mp-text-color); /* Цвет текста при наведении можно не менять */
+    color: var(--mp-text-color);
 }
 .mp-actions-menu li a:active {
     background-color: #e9ecef;
 }
 
-
 /* --- Тело поста --- */
 .mp-body {
-    font-size: 1rem; /* Основной размер текста чуть больше */
+    font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 12px;
-    word-wrap: break-word; /* Перенос длинных слов */
+    word-wrap: break-word;
     color: var(--mp-text-color);
 }
 
-/* Стили для контента внутри .mp-body */
 .mp-body blockquote,
-.mp-body .quote { /* Стилизуем цитаты */
+.mp-body .quote {
     border-left: 4px solid #dee2e6;
     background-color: #f8f9fa;
     padding: 10px 15px;
-    margin: 15px 0 15px 0px; /* Убираем отступ слева для цитат */
-    color: var(--mp-text-color); /* Текст цитаты не приглушаем */
-    font-style: normal; /* Убираем курсив по умолчанию */
+    margin: 15px 0 15px 0px;
+    color: var(--mp-text-color);
+    font-style: normal;
     border-radius: 0 var(--mp-border-radius) var(--mp-border-radius) 0;
 }
 .mp-body .quote_header,
-.mp-body blockquote .quote_header { /* Шапка цитаты */
+.mp-body blockquote .quote_header {
     font-style: normal;
     font-weight: 600;
     color: var(--mp-text-color-muted);
@@ -317,7 +320,6 @@ body #ipbwrapper table.ipbtable[data-post] {
     margin-bottom: 0;
 }
 
-/* TODO: Стили для спойлеров .spoiler, .sp-head, .sp-body */
 .mp-body .spoiler {
     border: 1px solid #eee;
     border-radius: var(--mp-border-radius);
@@ -336,31 +338,29 @@ body #ipbwrapper table.ipbtable[data-post] {
 .mp-body .sp-head:hover {
     background-color: #e9ecef;
 }
-.mp-body .sp-head.open { /* Если нужно добавить класс при открытии */
+.mp-body .sp-head.open {
     border-bottom: 1px solid #eee;
 }
 .mp-body .sp-body {
     padding: 12px;
     background-color: #fff;
-    /* Скрытие/показ тела спойлера лучше делать через JS, меняя display или max-height */
-    display: none; /* По умолчанию скрыто */
+    display: none;
 }
 .mp-body .sp-body.open {
     display: block;
 }
 
 
-.mp-body img { /* Ограничение картинок */
+.mp-body img {
     max-width: 100%;
     height: auto;
-    border-radius: 4px; /* Небольшое скругление картинок */
-    margin: 5px 0; /* Небольшие отступы для картинок */
+    border-radius: 4px;
+    margin: 5px 0;
 }
-.mp-body a > img { /* Убрать рамку у ссылок-картинок */
+.mp-body a > img {
    border: none;
 }
 
-/* Стили для подписи */
 .mp-body .signature {
     border-top: 1px dashed #ccc;
     margin-top: 15px;
@@ -369,23 +369,21 @@ body #ipbwrapper table.ipbtable[data-post] {
     color: var(--mp-text-color-muted);
 }
 
-
 /* --- Подвал поста --- */
 .mp-footer {
     font-size: 0.8rem;
     color: var(--mp-text-color-muted);
-    text-align: right; /* Дата справа */
-    padding-top: 10px; /* Отступ сверху */
+    text-align: right;
+    padding-top: 10px;
     margin-top: 10px;
-    /* border-top: 1px solid #eee; */ /* Можно добавить линию над футером, если нужно */
 }
 
 .mp-creation-date.edited-by-self {
-    color: #0d6efd; /* Синий, если отредактировал сам */
+    color: #0d6efd;
     font-style: italic;
 }
 .mp-creation-date.edited-by-other {
-    color: #dc3545; /* Красный, если кто-то другой */
+    color: #dc3545;
     font-style: italic;
 }
 
@@ -399,7 +397,7 @@ a:hover {
     text-decoration: underline;
 }
 
-/* --- Стили для меню пользователя (пока скрыто, добавится JS) --- */
+/* --- Стили для меню пользователя --- */
 .mp-user-menu {
     display: none;
     position: absolute;
@@ -408,17 +406,17 @@ a:hover {
     border-radius: var(--mp-border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
-    margin: 4px 0 0 0; /* Отступ сверху от ника */
+    margin: 4px 0 0 0;
     list-style: none;
-    min-width: 180px; /* Чуть шире */
-    z-index: 1051; /* Выше меню действий */
+    min-width: 180px;
+    z-index: 1051;
     overflow: hidden;
 }
 .mp-user-menu.visible {
     display: block;
 }
 .mp-user-menu li a,
-.mp-user-menu li span { /* Стилизуем и некликабельные элементы */
+.mp-user-menu li span {
     display: block;
     padding: 8px 16px;
     color: var(--mp-text-color);
@@ -435,46 +433,37 @@ a:hover {
     background-color: #e9ecef;
 }
 
-.mp-user-menu hr { /* Разделитель в меню */
+.mp-user-menu hr {
     border: 0;
     border-top: 1px solid #eee;
     margin: 5px 0;
 }
 
-/* Стили для элемента репутации в меню пользователя */
 .mp-user-menu .rep-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 16px;
     font-size: 0.9rem;
-    cursor: default; /* Не кликабельный сам элемент */
+    cursor: default;
 }
 .mp-user-menu .rep-item .rep-value {
     display: flex;
     align-items: center;
-    gap: 5px; /* Пробел между звездой и числом */
+    gap: 5px;
 }
 .mp-user-menu .rep-item .rep-plus {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #198754; /* Зеленый цвет Bootstrap */
+    color: #198754;
     padding: 0 5px;
     cursor: pointer;
     text-decoration: none;
     border-radius: 4px;
-    margin-left: 10px; /* Отступ от числа */
+    margin-left: 10px;
 }
 .mp-user-menu .rep-item .rep-plus:hover {
    opacity: 0.7;
    background-color: #e9ecef;
    text-decoration: none;
 }
-
-/* --- Временные стили для отладки --- */
-/* Раскомментируйте, чтобы увидеть границы блоков */
-/*
-.mp-post, .mp-header, .mp-author-info, .mp-author-details, .mp-meta-actions, .mp-body, .mp-footer {
-    border: 1px dotted red !important;
-}
-*/
