@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         4pda Modern Desktop Theme (Loader)
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3 // Обновил версию для ясности
 // @description  Loads modern theme for 4pda showtopic pages (Desktop) from GitHub
 // @author       LetovRF
 // @match        *://4pda.to/forum/index.php?showtopic=*
