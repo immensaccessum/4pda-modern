@@ -56,9 +56,9 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     margin: 0 auto var(--mp-post-margin-bottom) auto; /* Центрируем и добавляем отступ снизу */
     box-shadow: var(--mp-box-shadow);
     border: 1px solid #ddd; /* Добавим тонкую границу для четкости */
-    overflow: hidden; /* Чтобы float'ы или position:absolute не вылезали */
+    overflow: visible; /* ИЗМЕНЕНО: Позволяем меню выходить за границы */
     max-width: 900px; /* Ограничиваем ширину поста для читаемости на широких экранах */
-    position: relative; /* Добавим, чтобы дочерние absolute позиционировались относительно поста, если потребуется */
+    position: relative; /* Для позиционирования дочерних absolute */
 }
 
 /* --- Шапка поста --- */
@@ -86,6 +86,7 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     object-fit: cover; /* Масштабирование аватарки */
     flex-shrink: 0; /* Не сжимать аватар */
     border: 1px solid #eee; /* Тонкая рамка аватара */
+    background-color: #eee; /* Фон для SVG-заглушки */
 }
 
 .mp-author-details {
@@ -136,12 +137,12 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
 }
 
 
-.mp-author-line2 { /* Строка со статусом и предупреждениями */
+.mp-author-line2 { /* Строка со статусом и группой */
     font-size: 0.8rem; /* Мелкий шрифт */
     color: var(--mp-text-color-muted);
 }
-.mp-author-line2 .mp-author-warnings {
-    /* Дополнительные стили для группы/предупреждений, если нужно */
+.mp-author-group { /* Стили для группы */
+    /* Можно добавить особый стиль, если нужно */
 }
 
 
@@ -258,15 +259,15 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
 
 .mp-actions-menu {
     display: none; /* Скрыто по умолчанию */
-    position: absolute;
-    top: calc(100% + 4px); /* С небольшим отступом снизу триггера */
-    right: 0;
+    position: absolute; /* Позиционируется JS */
+    top: calc(100% + 4px); /* По умолчанию - снизу */
+    right: 0; /* По умолчанию - справа */
     background-color: var(--mp-post-background-color);
     border: 1px solid #ddd;
     border-radius: var(--mp-border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
-    margin: 0;
+    margin: 0; /* Убираем margin */
     list-style: none;
     min-width: 160px; /* Минимальная ширина меню */
     z-index: 1050; /* Поверх других элементов */
@@ -301,6 +302,7 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     margin-bottom: 12px;
     word-wrap: break-word; /* Перенос длинных слов */
     color: var(--mp-text-color);
+    clear: both; /* На случай, если в шапке были float'ы */
 }
 
 /* Стили для контента внутри .mp-body */
@@ -313,6 +315,7 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     color: var(--mp-text-color); /* Текст цитаты не приглушаем */
     font-style: normal; /* Убираем курсив по умолчанию */
     border-radius: 0 var(--mp-border-radius) var(--mp-border-radius) 0;
+    overflow: hidden; /* Предотвращение схлопывания */
 }
 .mp-body .quote_header,
 .mp-body blockquote .quote_header { /* Шапка цитаты */
@@ -350,6 +353,11 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     transition: background-color 0.2s ease;
     position: relative; /* Для стрелочки */
     padding-left: 30px; /* Место для стрелочки */
+    list-style: none; /* Убрать маркеры списка, если вдруг спойлер - это li */
+}
+/* Убираем нижнюю границу у шапки, если спойлер закрыт */
+.mp-body .sp-head:not(.open) {
+   border-bottom-color: transparent;
 }
 /* Стрелочка для спойлера */
 .mp-body .sp-head::before {
@@ -361,6 +369,7 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     transition: transform 0.2s ease;
     font-size: 0.7em;
     color: var(--mp-text-color-muted);
+    display: inline-block; /* Чтобы transform работал */
 }
 .mp-body .sp-head.open::before {
     transform: translateY(-50%) rotate(90deg); /* Стрелка вниз (открыто) */
@@ -368,10 +377,6 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
 
 .mp-body .sp-head:hover {
     background-color: #f0f0f0;
-}
-/* Убираем нижнюю границу у шапки, если спойлер закрыт и она последняя */
-.mp-body .sp-head:not(.open) {
-   border-bottom-color: transparent;
 }
 /* Всегда показываем границу, если спойлер открыт */
 .mp-body .sp-head.open {
@@ -382,8 +387,12 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     padding: 15px; /* Увеличим паддинг */
     background-color: #ffffff; /* Белый фон для содержимого */
     display: none; /* Изначально скрыто */
-    /* border-top: 1px solid var(--mp-spoiler-border-color); */ /* Убираем верхнюю границу, т.к. есть нижняя у шапки */
 }
+/* Показываем тело, если у шапки есть класс open */
+.mp-body .sp-head.open + .sp-body {
+    display: block;
+}
+/* Или если у самого тела есть класс open */
 .mp-body .sp-body.open {
     display: block;
 }
@@ -430,6 +439,12 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     color: #dc3545; /* Красный, если кто-то другой */
     font-style: italic;
 }
+.mp-edit-reason { /* Стиль для причины редактирования */
+    margin-top: 5px;
+    font-size: 0.75rem;
+    font-style: italic;
+    text-align: right;
+}
 
 /* --- Общие доп. стили --- */
 a {
@@ -450,7 +465,7 @@ a:hover {
     border-radius: var(--mp-border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
-    margin: 0; /* Убираем margin, т.к. позиционируем JS */
+    margin: 0; /* Убираем margin */
     list-style: none;
     min-width: 200px; /* Чуть шире */
     z-index: 1051; /* Выше меню действий */
@@ -521,14 +536,3 @@ a:hover {
    background-color: #e9ecef;
    text-decoration: none;
 }
-
-/* --- Временные стили для отладки --- */
-/* Раскомментируйте, чтобы увидеть границы */
-/*
-.mp-post, .mp-header, .mp-author-info, .mp-author-details, .mp-meta-actions, .mp-body, .mp-footer, .mp-actions-menu, .mp-user-menu {
-    border: 1px dotted red !important;
-}
-.mp-actions-trigger, .mp-author-nick {
-    outline: 1px dashed blue !important;
-}
-*/
