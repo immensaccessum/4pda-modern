@@ -1,50 +1,34 @@
 /* --- CSS Custom Properties (Variables) --- */
 :root {
     --mp-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    --mp-background-color: #f0f2f5; /* Слегка сероватый фон страницы, как в соцсетях */
-    --mp-post-background-color: #ffffff; /* Белый фон поста */
-    --mp-text-color: #1c1e21; /* Темно-серый основной текст */
-    --mp-text-color-muted: #65676b; /* Серый для мета-информации */
-    --mp-link-color: #0d6efd; /* Стандартный синий цвет ссылок */
+    --mp-background-color: #f0f2f5;
+    --mp-post-background-color: #ffffff;
+    --mp-text-color: #1c1e21;
+    --mp-text-color-muted: #65676b;
+    --mp-link-color: #0d6efd;
     --mp-link-hover-color: #0a58ca;
-    --mp-border-radius: 8px; /* Скругление углов */
-    --mp-post-padding: 16px; /* Внутренний отступ поста */
-    --mp-post-margin-bottom: 16px; /* Внешний отступ снизу поста */
-    --mp-avatar-size: 40px; /* Размер аватара */
-    --mp-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Легкая тень, более плоская */
-    --mp-border-color: #ced4da; /* Цвет границ (если нужны) */
-    --mp-spoiler-border-color: #e0e0e0; /* Цвет границ спойлера */
+    --mp-border-radius: 8px;
+    --mp-post-padding: 16px;
+    --mp-post-margin-bottom: 16px;
+    --mp-avatar-size: 40px;
+    --mp-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --mp-border-color: #ddd; /* Используем чуть темнее для границ поста и меню */
+    --mp-spoiler-border-color: #e0e0e0;
 }
 
 /* --- Общие стили --- */
 body {
-    background-color: var(--mp-background-color) !important; /* Перебиваем возможные стили 4pda */
+    background-color: var(--mp-background-color) !important;
     font-family: var(--mp-font-family);
     color: var(--mp-text-color);
-    line-height: 1.5; /* Чуть плотнее, чем 1.6 */
+    line-height: 1.5;
 }
 
-/* Убираем стандартные элементы страницы, которые будем переделывать или скрывать */
-#logostrip, #submenu, #userlinks, #navstrip, .topic_controls, .maintitle, .bottom_action_row, #gfooter, .copyright, body > div[align="center"], #fast-reply, .category_controls {
-    /* display: none; */ /* Пока не скрываем, чтобы страница не была пустой */
-}
-/* --- ВРЕМЕННО КОММЕНТИРУЕМ СКРЫТИЕ ПАНЕЛИ МОДЕРАЦИИ --- */
-/*
-.borderwrap > .bar {
-   display: none;
-}
-*/
-
-/* Скрываем ОРИГИНАЛЬНЫЕ таблицы постов настольной версии (ПРОСТЫЕ СЕЛЕКТОРЫ) */
-/* Сначала скрываем закрепленный пост */
-#topic-pin-content > table.ipbtable[data-post] {
-     display: none !important;
-     visibility: hidden; /* Дополнительно для надежности */
-}
-/* Затем скрываем все остальные посты (которые не в #topic-pin-content) */
+/* Скрываем ОРИГИНАЛЬНЫЕ таблицы постов */
+#topic-pin-content > table.ipbtable[data-post],
 table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     display: none !important;
-    visibility: hidden; /* Дополнительно для надежности */
+    visibility: hidden;
 }
 
 
@@ -53,486 +37,168 @@ table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
     background-color: var(--mp-post-background-color);
     border-radius: var(--mp-border-radius);
     padding: var(--mp-post-padding);
-    margin: 0 auto var(--mp-post-margin-bottom) auto; /* Центрируем и добавляем отступ снизу */
+    margin: 0 auto var(--mp-post-margin-bottom) auto;
     box-shadow: var(--mp-box-shadow);
-    border: 1px solid #ddd; /* Добавим тонкую границу для четкости */
-    overflow: visible; /* ИЗМЕНЕНО: Позволяем меню выходить за границы */
-    max-width: 900px; /* Ограничиваем ширину поста для читаемости на широких экранах */
-    position: relative; /* Для позиционирования дочерних absolute */
+    border: 1px solid var(--mp-border-color); /* Используем переменную */
+    overflow: visible; /* Позволяем меню выходить за границы */
+    max-width: 900px;
+    position: relative;
 }
 
 /* --- Шапка поста --- */
 .mp-header {
     display: flex;
-    justify-content: space-between; /* Автор слева, мета/действия справа */
-    align-items: flex-start; /* Выравнивание по верху */
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 12px;
-    padding-bottom: 10px; /* Отступ снизу шапки */
-    border-bottom: 1px solid #eee; /* Линия под шапкой */
-    gap: 10px; /* Пространство между левой и правой частью */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee; /* Светлая линия */
+    gap: 10px;
 }
 
-.mp-author-info {
-    display: flex;
-    align-items: flex-start; /* Аватар и инфо рядом */
-    gap: 10px; /* Пространство между аватаром и текстом */
-    flex-grow: 1; /* Занимать доступное место */
-}
+.mp-author-info { display: flex; align-items: flex-start; gap: 10px; flex-grow: 1; }
 
 .mp-avatar {
-    width: var(--mp-avatar-size);
-    height: var(--mp-avatar-size);
-    border-radius: 50%; /* Круглый аватар */
-    object-fit: cover; /* Масштабирование аватарки */
-    flex-shrink: 0; /* Не сжимать аватар */
-    border: 1px solid #eee; /* Тонкая рамка аватара */
-    background-color: #eee; /* Фон для SVG-заглушки */
+    width: var(--mp-avatar-size); height: var(--mp-avatar-size);
+    border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    border: 1px solid #eee; background-color: #eee;
 }
 
-.mp-author-details {
-    display: flex;
-    flex-direction: column; /* Ник сверху, мета снизу */
-    padding-top: 2px; /* Небольшая коррекция по высоте */
-    flex-grow: 1;
-    position: relative; /* Контейнер для меню пользователя */
-}
-
-.mp-author-line1 { /* Строка с ником и репутацией */
-   display: flex;
-   align-items: center;
-   flex-wrap: wrap; /* Перенос, если не влезает */
-   gap: 8px;
-   margin-bottom: 4px;
-}
+.mp-author-details { display: flex; flex-direction: column; padding-top: 2px; flex-grow: 1; position: relative; }
+.mp-author-line1 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
 
 .mp-author-nick {
-    font-size: 1rem; /* Размер ника */
-    font-weight: 600; /* Полужирный ник */
-    color: var(--mp-text-color);
-    text-decoration: none;
-    margin-right: 5px; /* Отступ от репутации */
-    cursor: pointer; /* Указываем, что кликабельно */
+    font-size: 1rem; font-weight: 600; color: var(--mp-text-color);
+    text-decoration: none; margin-right: 5px; cursor: pointer;
 }
-.mp-author-nick:hover {
-    color: var(--mp-link-hover-color);
-    text-decoration: underline;
-}
+.mp-author-nick:hover { color: var(--mp-link-hover-color); text-decoration: underline; }
 
 .mp-rep {
-    font-size: 0.85rem;
-    color: var(--mp-text-color-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background-color: #f0f2f5;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-.mp-rep a { /* Ссылки внутри репутации (если вернем) */
-    color: inherit; /* Наследуем цвет */
-    text-decoration: none;
-}
-.mp-rep a:hover {
-    text-decoration: underline;
+    font-size: 0.85rem; color: var(--mp-text-color-muted); display: flex;
+    align-items: center; gap: 4px; background-color: #f0f2f5;
+    padding: 2px 6px; border-radius: 4px;
 }
 
-
-.mp-author-line2 { /* Строка со статусом и группой */
-    font-size: 0.8rem; /* Мелкий шрифт */
-    color: var(--mp-text-color-muted);
-}
-.mp-author-group { /* Стили для группы */
-    /* Можно добавить особый стиль, если нужно */
-}
-
+.mp-author-line2 { font-size: 0.8rem; color: var(--mp-text-color-muted); }
+.mp-author-group { /* Дополнительный стиль, если нужен */ }
 
 /* Правая часть шапки */
-.mp-meta-actions {
-    display: flex;
-    flex-direction: column; /* Мета сверху, действия снизу */
-    align-items: flex-end; /* Выравнивание по правому краю */
-    text-align: right;
-    flex-shrink: 0; /* Не сжимать */
-}
+.mp-meta-actions { display: flex; flex-direction: column; align-items: flex-end; text-align: right; flex-shrink: 0; }
+.mp-meta { font-size: 0.8rem; color: var(--mp-text-color-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
 
-.mp-meta {
-    font-size: 0.8rem;
-    color: var(--mp-text-color-muted);
-    margin-bottom: 8px; /* Больше отступ до кнопки меню */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+.mp-post-number { font-weight: 500; color: var(--mp-text-color-muted); text-decoration: none; }
+.mp-post-number:hover { color: var(--mp-link-hover-color); text-decoration: underline; }
 
-.mp-post-number {
-    font-weight: 500;
-    color: var(--mp-text-color-muted);
-    text-decoration: none;
-}
-.mp-post-number:hover {
-    color: var(--mp-link-hover-color);
-    text-decoration: underline;
-}
+.mp-ip, .mp-separator { display: none; } /* IP скрыт по умолчанию */
+.mp-post[data-show-ip="true"] .mp-ip, .mp-post[data-show-ip="true"] .mp-separator { display: inline; }
 
-/* IP и разделитель скрыты по умолчанию */
-.mp-ip,
-.mp-separator {
-    display: none;
+/* Чекбокс модератора */
+.mp-secheck { display: none; margin-left: 8px; cursor: pointer; vertical-align: middle; }
+.mp-secheck input { opacity: 0; position: absolute; width: 1px; height: 1px; }
+.mp-secheck .check {
+    display: inline-block; width: 16px; height: 16px; border: 1px solid var(--mp-border-color);
+    border-radius: 3px; vertical-align: -3px; transition: background-color 0.2s ease, border-color 0.2s ease;
+    background-color: #fff; position: relative;
 }
-
-/* Стили для показа IP, если понадобится */
-.mp-post[data-show-ip="true"] .mp-ip,
-.mp-post[data-show-ip="true"] .mp-separator {
-    display: inline;
-}
-
-
-/* Скрываем чекбокс модератора по умолчанию */
-.mp-secheck {
-    display: none; /* Будет показан через JS, если canModerate=true */
-    margin-left: 8px; /* Отступ слева */
-    cursor: pointer;
-    vertical-align: middle; /* Выравнивание по центру строки */
-}
-.mp-secheck input { /* Скрываем реальный чекбокс */
-   opacity: 0;
-   position: absolute;
-   width: 1px;
-   height: 1px;
-}
-.mp-secheck .check { /* Рисуем кастомный */
-   display: inline-block;
-   width: 16px;
-   height: 16px;
-   border: 1px solid var(--mp-border-color);
-   border-radius: 3px;
-   vertical-align: -3px; /* Коррекция вертикального выравнивания */
-   transition: background-color 0.2s ease, border-color 0.2s ease;
-   background-color: #fff;
-   position: relative; /* Для галочки */
-}
-.mp-secheck input:checked + .check {
-    background-color: var(--mp-link-color);
-    border-color: var(--mp-link-color);
-}
-/* Рисуем галочку */
+.mp-secheck input:checked + .check { background-color: var(--mp-link-color); border-color: var(--mp-link-color); }
 .mp-secheck input:checked + .check::after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 1px;
-    left: 5px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+    content: ''; display: block; position: absolute; top: 1px; left: 5px; width: 4px; height: 8px;
+    border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
-
 
 /* Меню действий */
-.mp-actions-menu-container {
-    position: relative; /* Для позиционирования меню */
-}
-
+.mp-actions-menu-container { position: relative; }
 .mp-actions-trigger {
-    background: none;
-    border: 1px solid transparent; /* Граница для выравнивания размера */
-    color: var(--mp-text-color-muted);
-    font-size: 1.3rem; /* Размер иконки "три точки" */
-    font-weight: bold;
-    padding: 0 6px;
-    cursor: pointer;
-    line-height: 1;
-    border-radius: 4px;
-    height: 28px; /* Фиксированная высота */
-    width: 28px; /* Фиксированная ширина */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: none; border: 1px solid transparent; color: var(--mp-text-color-muted);
+    font-size: 1.3rem; font-weight: bold; padding: 0 6px; cursor: pointer; line-height: 1;
+    border-radius: 4px; height: 28px; width: 28px; display: flex; align-items: center; justify-content: center;
 }
-.mp-actions-trigger:hover {
-    color: var(--mp-link-color);
-    background-color: #f0f2f5; /* Легкий фон при наведении */
-    border-color: #ddd;
-}
+.mp-actions-trigger:hover { color: var(--mp-link-color); background-color: #f0f2f5; border-color: var(--mp-border-color); }
 
 .mp-actions-menu {
-    display: none; /* Скрыто по умолчанию */
-    position: absolute; /* Позиционируется JS */
-    top: calc(100% + 4px); /* По умолчанию - снизу */
-    right: 0; /* По умолчанию - справа */
-    background-color: var(--mp-post-background-color);
-    border: 1px solid #ddd;
-    border-radius: var(--mp-border-radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 8px 0;
-    margin: 0; /* Убираем margin */
-    list-style: none;
-    min-width: 160px; /* Минимальная ширина меню */
-    z-index: 1050; /* Поверх других элементов */
-    overflow: hidden;
+    display: none; /* Управляется классом .visible */
+    position: absolute; background-color: var(--mp-post-background-color);
+    border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 8px 0; margin: 0; list-style: none;
+    min-width: 160px; z-index: 1050; overflow: hidden;
 }
-.mp-actions-menu.visible { /* Класс для показа меню */
-    display: block;
-}
-
-.mp-actions-menu li a {
-    display: block;
-    padding: 8px 16px;
-    color: var(--mp-text-color);
-    text-decoration: none;
-    white-space: nowrap;
-    font-size: 0.9rem;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-}
-.mp-actions-menu li a:hover {
-    background-color: #f0f2f5;
-    color: var(--mp-text-color); /* Цвет текста при наведении можно не менять */
-}
-.mp-actions-menu li a:active {
-    background-color: #e9ecef;
-}
-
+.mp-actions-menu.visible { display: block; }
+.mp-actions-menu li a { display: block; padding: 8px 16px; color: var(--mp-text-color); text-decoration: none; white-space: nowrap; font-size: 0.9rem; transition: background-color 0.15s ease-in-out; }
+.mp-actions-menu li a:hover { background-color: #f0f2f5; }
+.mp-actions-menu li a:active { background-color: #e9ecef; }
 
 /* --- Тело поста --- */
-.mp-body {
-    font-size: 1rem; /* Основной размер текста чуть больше */
-    line-height: 1.6;
-    margin-bottom: 12px;
-    word-wrap: break-word; /* Перенос длинных слов */
-    color: var(--mp-text-color);
-    clear: both; /* На случай, если в шапке были float'ы */
-}
+.mp-body { font-size: 1rem; line-height: 1.6; margin-bottom: 12px; word-wrap: break-word; color: var(--mp-text-color); clear: both; }
 
-/* Стили для контента внутри .mp-body */
-.mp-body blockquote,
-.mp-body .quote { /* Стилизуем цитаты */
-    border-left: 4px solid #dee2e6;
-    background-color: #f8f9fa;
-    padding: 10px 15px;
-    margin: 15px 0 15px 0px; /* Убираем отступ слева для цитат */
-    color: var(--mp-text-color); /* Текст цитаты не приглушаем */
-    font-style: normal; /* Убираем курсив по умолчанию */
-    border-radius: 0 var(--mp-border-radius) var(--mp-border-radius) 0;
-    overflow: hidden; /* Предотвращение схлопывания */
+/* Цитаты */
+.mp-body blockquote, .mp-body .quote {
+    border-left: 4px solid #dee2e6; background-color: #f8f9fa; padding: 10px 15px; margin: 15px 0;
+    color: var(--mp-text-color); font-style: normal; border-radius: 0 var(--mp-border-radius) var(--mp-border-radius) 0; overflow: hidden;
 }
-.mp-body .quote_header,
-.mp-body blockquote .quote_header { /* Шапка цитаты */
-    font-style: normal;
-    font-weight: 600;
-    color: var(--mp-text-color-muted);
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-    display: block;
-}
-.mp-body blockquote p:first-child,
-.mp-body .quote p:first-child {
-    margin-top: 0;
-}
-.mp-body blockquote p:last-child,
-.mp-body .quote p:last-child {
-    margin-bottom: 0;
-}
+.mp-body .quote_header, .mp-body blockquote .quote_header { font-style: normal; font-weight: 600; color: var(--mp-text-color-muted); font-size: 0.85rem; margin-bottom: 8px; display: block; }
+.mp-body blockquote p:first-child, .mp-body .quote p:first-child { margin-top: 0; }
+.mp-body blockquote p:last-child, .mp-body .quote p:last-child { margin-bottom: 0; }
 
-/* Обновленные стили для спойлеров */
-.mp-body .spoiler {
-    border: 1px solid var(--mp-spoiler-border-color);
-    border-radius: var(--mp-border-radius);
-    margin: 15px 0;
-    overflow: hidden;
-    background-color: #f9f9f9; /* Легкий фон для всего спойлера */
-}
+/* Спойлеры */
+.mp-body .spoiler { border: 1px solid var(--mp-spoiler-border-color); border-radius: var(--mp-border-radius); margin: 15px 0; overflow: hidden; background-color: #f9f9f9; }
 .mp-body .sp-head {
-    background-color: transparent; /* Убираем фон шапки, т.к. он у родителя */
-    padding: 10px 15px; /* Увеличим паддинг */
-    cursor: pointer;
-    font-weight: 600; /* Делаем жирнее */
-    color: var(--mp-text-color); /* Не приглушаем */
-    border-bottom: 1px solid var(--mp-spoiler-border-color);
-    transition: background-color 0.2s ease;
-    position: relative; /* Для стрелочки */
-    padding-left: 30px; /* Место для стрелочки */
-    list-style: none; /* Убрать маркеры списка, если вдруг спойлер - это li */
-}
-/* Убираем нижнюю границу у шапки, если спойлер закрыт */
-.mp-body .sp-head:not(.open) {
-   border-bottom-color: transparent;
+    background-color: transparent; padding: 10px 15px 10px 30px; cursor: pointer; /* Увеличил отступ слева */
+    font-weight: 600; color: var(--mp-text-color); border-bottom: 1px solid transparent; /* Граница прозрачная по умолчанию */
+    transition: background-color 0.2s ease, border-color 0.2s ease; position: relative; list-style: none;
 }
 /* Стрелочка для спойлера */
 .mp-body .sp-head::before {
-    content: '▶'; /* Стрелка вправо (закрыто) */
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%) rotate(0deg);
-    transition: transform 0.2s ease;
-    font-size: 0.7em;
-    color: var(--mp-text-color-muted);
-    display: inline-block; /* Чтобы transform работал */
+    content: '▶'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%) rotate(0deg);
+    transition: transform 0.2s ease; font-size: 0.7em; color: var(--mp-text-color-muted); display: inline-block;
 }
-.mp-body .sp-head.open::before {
-    transform: translateY(-50%) rotate(90deg); /* Стрелка вниз (открыто) */
-}
+.mp-body .sp-head.open::before { transform: translateY(-50%) rotate(90deg); }
+.mp-body .sp-head:hover { background-color: #f0f0f0; }
+/* Показываем границу у шапки, если спойлер открыт */
+.mp-body .sp-head.open { border-bottom-color: var(--mp-spoiler-border-color); }
 
-.mp-body .sp-head:hover {
-    background-color: #f0f0f0;
-}
-/* Всегда показываем границу, если спойлер открыт */
-.mp-body .sp-head.open {
-    border-bottom-color: var(--mp-spoiler-border-color);
-}
-
-.mp-body .sp-body {
-    padding: 15px; /* Увеличим паддинг */
-    background-color: #ffffff; /* Белый фон для содержимого */
-    display: none; /* Изначально скрыто */
-}
-/* Показываем тело, если у шапки есть класс open */
-.mp-body .sp-head.open + .sp-body {
-    display: block;
-}
-/* Или если у самого тела есть класс open */
+.mp-body .sp-body { padding: 15px; background-color: #ffffff; display: none; }
+/* CSS-only показ/скрытие тела */
+.mp-body .sp-head.open + .sp-body,
 .mp-body .sp-body.open {
     display: block;
 }
 
+/* Картинки */
+.mp-body img { max-width: 100%; height: auto; border-radius: 4px; margin: 5px 0; display: block; }
+.mp-body a > img { border: none; }
 
-.mp-body img { /* Ограничение картинок */
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px; /* Небольшое скругление картинок */
-    margin: 5px 0; /* Небольшие отступы для картинок */
-    display: block; /* Чтобы margin работал */
-}
-.mp-body a > img { /* Убрать рамку у ссылок-картинок */
-   border: none;
-}
-
-/* Стили для подписи */
-.mp-body .signature {
-    border-top: 1px dashed #ccc;
-    margin-top: 15px;
-    padding-top: 10px;
-    font-size: 0.85rem;
-    color: var(--mp-text-color-muted);
-    clear: both; /* На случай float'ов в подписи */
-}
-
+/* Подпись */
+.mp-body .signature { border-top: 1px dashed #ccc; margin-top: 15px; padding-top: 10px; font-size: 0.85rem; color: var(--mp-text-color-muted); clear: both; }
 
 /* --- Подвал поста --- */
-.mp-footer {
-    font-size: 0.8rem;
-    color: var(--mp-text-color-muted);
-    text-align: right; /* Дата справа */
-    padding-top: 10px; /* Отступ сверху */
-    margin-top: 10px;
-    clear: both; /* На случай float'ов в теле поста */
-    /* border-top: 1px solid #eee; */ /* Можно добавить линию над футером, если нужно */
-}
-
-.mp-creation-date.edited-by-self {
-    color: var(--mp-link-color); /* Синий, если отредактировал сам */
-    font-style: italic;
-}
-.mp-creation-date.edited-by-other {
-    color: #dc3545; /* Красный, если кто-то другой */
-    font-style: italic;
-}
-.mp-edit-reason { /* Стиль для причины редактирования */
-    margin-top: 5px;
-    font-size: 0.75rem;
-    font-style: italic;
-    text-align: right;
-}
+.mp-footer { font-size: 0.8rem; color: var(--mp-text-color-muted); text-align: right; padding-top: 10px; margin-top: 10px; clear: both; }
+.mp-creation-date.edited-by-self { color: var(--mp-link-color); font-style: italic; }
+.mp-creation-date.edited-by-other { color: #dc3545; font-style: italic; }
+.mp-edit-reason { margin-top: 5px; font-size: 0.75rem; font-style: italic; text-align: right; }
 
 /* --- Общие доп. стили --- */
-a {
-    color: var(--mp-link-color);
-    text-decoration: none;
-}
-a:hover {
-    color: var(--mp-link-hover-color);
-    text-decoration: underline;
-}
+a { color: var(--mp-link-color); text-decoration: none; }
+a:hover { color: var(--mp-link-hover-color); text-decoration: underline; }
 
 /* --- Стили для меню пользователя --- */
 .mp-user-menu {
-    display: none; /* Управляется JS */
-    position: absolute; /* Позиционируется JS */
-    background-color: var(--mp-post-background-color);
-    border: 1px solid #ddd;
-    border-radius: var(--mp-border-radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 8px 0;
-    margin: 0; /* Убираем margin */
-    list-style: none;
-    min-width: 200px; /* Чуть шире */
-    z-index: 1051; /* Выше меню действий */
-    overflow: hidden;
+    display: none; /* Управляется классом .visible */
+    position: absolute; background-color: var(--mp-post-background-color);
+    border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 8px 0; margin: 0; list-style: none;
+    min-width: 200px; z-index: 1051; overflow: hidden;
 }
-.mp-user-menu.visible {
-    display: block; /* Показываем через класс */
+.mp-user-menu.visible { display: block; }
+.mp-user-menu li a, .mp-user-menu li span { display: block; padding: 8px 16px; color: var(--mp-text-color); text-decoration: none; white-space: nowrap; font-size: 0.9rem; transition: background-color 0.15s ease-in-out; }
+.mp-user-menu li a:hover { background-color: #f0f2f5; }
+.mp-user-menu li a:active { background-color: #e9ecef; }
+.mp-user-menu hr { border: 0; border-top: 1px solid #eee; margin: 5px 0; }
+.mp-user-menu .rep-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; font-size: 0.9rem; cursor: default; }
+.mp-user-menu .rep-item .rep-value { display: flex; align-items: center; gap: 5px; }
+.mp-user-menu .rep-item .rep-value a { padding: 0; color: inherit; }
+.mp-user-menu .rep-item .rep-value a:hover { background-color: transparent; }
+.mp-user-menu .rep-item .rep-plus {
+    font-size: 1.2rem; font-weight: bold; color: #198754; padding: 2px 6px; cursor: pointer;
+    text-decoration: none; border-radius: 4px; margin-left: 10px; line-height: 1;
 }
-.mp-user-menu li a,
-.mp-user-menu li span { /* Стилизуем и некликабельные элементы */
-    display: block;
-    padding: 8px 16px;
-    color: var(--mp-text-color);
-    text-decoration: none;
-    white-space: nowrap;
-    font-size: 0.9rem;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-}
-.mp-user-menu li a:hover {
-    background-color: #f0f2f5;
-    color: var(--mp-text-color);
-}
-.mp-user-menu li a:active {
-    background-color: #e9ecef;
-}
-
-.mp-user-menu hr { /* Разделитель в меню */
-    border: 0;
-    border-top: 1px solid #eee;
-    margin: 5px 0;
-}
-
-/* Стили для элемента репутации в меню пользователя */
-.mp-user-menu .rep-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    cursor: default; /* Не кликабельный сам элемент */
-}
-.mp-user-menu .rep-item .rep-value {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Пробел между звездой и числом */
-}
-.mp-user-menu .rep-item .rep-value a { /* Ссылка на историю репы */
-    padding: 0; /* Убираем лишние паддинги у ссылки */
-    color: inherit; /* Наследуем цвет */
-}
-.mp-user-menu .rep-item .rep-value a:hover {
-     background-color: transparent; /* Убираем фон при наведении */
-}
-
-.mp-user-menu .rep-item .rep-plus { /* Кнопка "+" */
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #198754; /* Зеленый цвет Bootstrap */
-    padding: 2px 6px; /* Делаем чуть больше */
-    cursor: pointer;
-    text-decoration: none;
-    border-radius: 4px;
-    margin-left: 10px; /* Отступ от числа */
-    line-height: 1; /* Выравнивание */
-}
-.mp-user-menu .rep-item .rep-plus:hover {
-   opacity: 0.8;
-   background-color: #e9ecef;
-   text-decoration: none;
-}
+.mp-user-menu .rep-item .rep-plus:hover { opacity: 0.8; background-color: #e9ecef; text-decoration: none; }
