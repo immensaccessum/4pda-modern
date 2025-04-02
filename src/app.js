@@ -2,14 +2,52 @@
     'use strict';
 
     const SCRIPT_NAME = '4pda Modern Theme App';
-    const SCRIPT_VERSION = '1.3'; // Версия с возвратом селекторов и отладкой меню/спойлеров
+    const SCRIPT_VERSION = '2.0-mockup'; // Версия для отладки UI болванки
     const LOG_PREFIX = `[${SCRIPT_NAME} v${SCRIPT_VERSION}]`;
 
-    console.log(`${LOG_PREFIX} Script starting...`);
+    console.log(`${LOG_PREFIX} Script starting... Running MOCKUP version.`);
 
     /**
      * ========================================================================
-     * ШАБЛОН НОВОГО ПОСТА (HTML Generation) v1.3 - Без изменений
+     * ДАННЫЕ-ЗАГЛУШКИ (Mock Data)
+     * ========================================================================
+     */
+    const mockPostDataArray = [
+        {
+            postId: 'mock1', authorNick: 'Тестер_1', authorId: '1001', authorProfileUrl: '#user1', authorPmUrl: '#pm1',
+            avatarUrl: null, // Будет SVG заглушка
+            authorStatus: 'Гуру', authorGroup: 'Модератор', reputation: '1024',
+            repHistoryUrl: '#hist1', repPlusUrl: '#plus1', ipAddress: '192.168.0.1', postNumber: '1',
+            postBodyHtml: `<p>Это тело первого поста-заглушки.</p><p>Содержит <b>форматирование</b> и <a href="#">ссылку</a>.</p><div class="spoiler"><button class="sp-head"><span><span>Спойлер (Нажми меня)</span></span></button><div class="sp-body" style="display: none;"><p>Скрытое содержимое спойлера.</p></div></div><p>Текст после спойлера.</p>`,
+            creationDate: 'Сегодня, 10:00', isEdited: false, editClass: '', editTooltip: '', editReason: '',
+            actions: [ { text: 'Хорошо!', url: '#', onclick: "alert('Karma+')" }, { text: 'Изменить', url: '#edit1', onclick: null }, { text: 'Жалоба', url: '#report1', onclick: null } ],
+            canModerate: true,
+        },
+        {
+            postId: 'mock2', authorNick: 'Другой_Юзер', authorId: '1002', authorProfileUrl: '#user2', authorPmUrl: '#pm2',
+            avatarUrl: 'https://placekitten.com/40/40', // Картинка-заглушка
+            authorStatus: 'Активный', authorGroup: '', /* Нет группы */ reputation: '-5',
+            repHistoryUrl: '#hist2', repPlusUrl: '#plus2', ipAddress: '10.0.0.1', postNumber: '2',
+            postBodyHtml: `<p>Второй пост для проверки.</p><blockquote><span class="quote_header">Цитата</span><p>Это цитата внутри поста.</p></blockquote><p>После цитаты.</p><div class="spoiler"><button class="sp-head open"><span><span>Открытый спойлер</span></span></button><div class="sp-body" style="display: block;"><p>Содержимое сразу видно.</p></div></div>`,
+            creationDate: 'Вчера, 15:30', isEdited: true, editClass: 'edited-by-other', editTooltip: 'Отредактировано Модератором', editReason: 'Оффтоп',
+            actions: [ { text: 'Хорошо!', url: '#', onclick: "alert('Karma+')" }, { text: 'Жалоба', url: '#report2', onclick: null } ], // Нет кнопки "Изменить"
+            canModerate: false,
+        },
+        {
+            postId: 'mock3', authorNick: 'Новичок', authorId: '1003', authorProfileUrl: '#user3', authorPmUrl: '#pm3',
+            avatarUrl: null,
+            authorStatus: 'Пользователь', authorGroup: 'Друзья 4PDA', reputation: '0',
+            repHistoryUrl: '#', repPlusUrl: '#', /* Нет ссылки на плюс */ ipAddress: '172.16.0.1', postNumber: '3',
+            postBodyHtml: `<p>Третий пост. Без спойлеров и цитат.</p>`,
+            creationDate: '01.01.2024, 00:01', isEdited: true, editClass: 'edited-by-self', editTooltip: 'Отредактировано автором', editReason: '', // Нет причины
+            actions: [ { text: 'Хорошо!', url: '#', onclick: "alert('Karma+')" }, { text: 'Изменить', url: '#edit3', onclick: null }, { text: 'Жалоба', url: '#report3', onclick: null } ],
+            canModerate: false,
+        },
+    ];
+
+    /**
+     * ========================================================================
+     * ШАБЛОН НОВОГО ПОСТА (HTML Generation) v2.0
      * ========================================================================
      */
     function createPostHtml(postData) {
@@ -18,6 +56,10 @@
             `<li><a href="${action.url}" ${action.onclick ? `onclick="${action.onclick}"` : ''}>${action.text}</a></li>`
         ).join('');
         const repHtml = `<span class="mp-rep" title="Репутация: ${postData.reputation}">⭐ ${postData.reputation}</span>`;
+
+        // ВАЖНО: Для спойлеров используем стандартную структуру 4pda (<button class="sp-head"><span><span>...</span></span></button><div class="sp-body">...),
+        // чтобы стили и JS могли их правильно обработать.
+        // В mockData postBodyHtml уже содержит эту структуру.
 
         return `
             <article class="mp-post" data-post-id="${postData.postId}" data-author-id="${postData.authorId}">
@@ -62,230 +104,166 @@
 
     /**
      * ========================================================================
-     * ИЗВЛЕЧЕНИЕ ДАННЫХ ИЗ ОРИГИНАЛЬНОЙ СТРАНИЦЫ (Data Extraction) v1.3
-     * Строго используем карту селекторов!
+     * ИНИЦИАЛИЗАЦИЯ И ВСТАВКА БОЛВАНОК (Mockup Injection) v2.0
      * ========================================================================
      */
-     function extractPostData(originalPostTable) {
-        const postId = originalPostTable.dataset.post; if (!postId) return null;
-        const logScopePrefix = `Post ${postId} Extract`;
-        // console.log(`--- [${logScopePrefix}] Starting extraction ---`);
-        const data = { postId, authorNick: '?', authorId: null, authorProfileUrl: '#', authorPmUrl: '#', avatarUrl: null, authorStatus: '', authorGroup: '', reputation: '0', repHistoryUrl: '#', repPlusUrl: '#', ipAddress: '', postNumber: '?', postBodyHtml: '<p>Контент не найден</p>', creationDate: '', isEdited: false, editClass: '', editTooltip: '', editReason: '', actions: [], canModerate: false };
+    function initMockupPosts() {
+        console.log(`${LOG_PREFIX} initMockupPosts running...`);
 
-        try {
-            const userInfoCell = originalPostTable.querySelector(`#pb-${postId}-r2 td[class^="post"]:first-child`);
-            const metaCell = originalPostTable.querySelector(`#ph-${postId}-d2`);
-            const postBodyCell = originalPostTable.querySelector(`#post-main-${postId}`);
-            const buttonsRow = originalPostTable.querySelector(`#pb-${postId}-r3`);
-            const leftButtonsCell = buttonsRow?.querySelector('td.formbuttonrow:first-child');
-            const rightButtonsCell = buttonsRow?.querySelector('td.formbuttonrow:last-child');
-            if (!userInfoCell || !metaCell || !postBodyCell || !buttonsRow || !leftButtonsCell || !rightButtonsCell) { console.error(`[${logScopePrefix}] ❌ CRITICAL: Essential cells missing!`); return null; }
+        // Находим основной контейнер, куда вставлять посты
+        // Ищем первый `.borderwrap` после `#navstrip`
+        const navstrip = document.querySelector('#navstrip');
+        let postContainer = navstrip?.nextElementSibling;
+        while(postContainer && !postContainer.matches('.borderwrap')) {
+            postContainer = postContainer.nextElementSibling;
+        }
 
-            // --- Автор и ID (Карта: ✅) ---
-            const nickLink = originalPostTable.querySelector(`#post-member-${postId} span.normalname a`);
-            if (nickLink) { data.authorNick = nickLink.textContent?.trim() || '?'; data.authorProfileUrl = nickLink.href || '#'; const userIdMatch = data.authorProfileUrl.match(/showuser=(\d+)/); if (userIdMatch) data.authorId = userIdMatch[1]; }
+        if (!postContainer) {
+            console.error(`${LOG_PREFIX} ❌ Could not find main post container (.borderwrap after #navstrip). Cannot inject mockups.`);
+            // Пробуем вставить просто в body как fallback
+            postContainer = document.createElement('div');
+            postContainer.id = 'mockup-fallback-container';
+            document.body.appendChild(postContainer);
+            console.warn(`${LOG_PREFIX} Injected posts into a fallback container in body.`);
+        } else {
+            console.log(`${LOG_PREFIX} ✅ Found post container:`, postContainer);
+            // Очищаем контейнер от оригинального содержимого (осторожно!)
+            // Пока просто добавляем, не очищая
+            // postContainer.innerHTML = '<h2>Mock Posts Below:</h2>';
+        }
 
-            // --- QMS URL (Сначала из меню, потом из кнопок - Карта: ✅ / ℹ️) ---
-            const userMenuContainer = document.getElementById(`post-member-${postId}_menu`); const pmLink = userMenuContainer?.querySelector('a[href*="act=qms&mid="]'); if (pmLink) data.authorPmUrl = pmLink.href; else if (data.authorId) { const qmsButton = rightButtonsCell.querySelector(`a[href*="act=qms&mid=${data.authorId}"]`); if (qmsButton) data.authorPmUrl = qmsButton.href; }
-
-            // --- Информация о пользователе (Из Карты: ✅ / ℹ️) ---
-            const avatarImg = userInfoCell.querySelector('.user-avatar img'); if (avatarImg) data.avatarUrl = avatarImg.src;
-            const statusElem = userInfoCell.querySelector('.mem-title'); if (statusElem) data.authorStatus = statusElem.textContent?.trim() || '';
-            // --- Группа пользователя (Возврат к проверенному методу) ---
-            const groupTextNode = Array.from(userInfoCell.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent?.includes('Группа:'));
-            const groupSpan = groupTextNode?.nextElementSibling; // Ищем СЛЕДУЮЩИЙ элемент
-            if (groupSpan && groupSpan.tagName === 'SPAN' && groupSpan.style.color) { // Добавили проверку style.color как в верификаторе
-                 data.authorGroup = groupSpan.textContent?.trim() || '';
-                 console.log(`[${logScopePrefix}] ✅ Author Group FOUND: "${data.authorGroup}"`);
-            } else {
-                 console.log(`[${logScopePrefix}] ℹ️ Author Group NOT found or span has no style.`);
-                 // Логируем, что нашли (или не нашли) после "Группа:"
-                 console.log(`[${logScopePrefix}]   Group Text Node:`, groupTextNode);
-                 console.log(`[${logScopePrefix}]   Element after Group Text Node:`, groupSpan);
+        // Генерируем и вставляем посты-заглушки
+        mockPostDataArray.forEach(postData => {
+            const newPostHtml = createPostHtml(postData);
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = newPostHtml;
+            const newPostElement = tempContainer.firstElementChild;
+            if (newPostElement) {
+                postContainer.appendChild(newPostElement); // Добавляем в конец контейнера
             }
-            const repValueSpan = userInfoCell.querySelector('span[data-member-rep]'); if (repValueSpan) data.reputation = repValueSpan.textContent?.trim() || '0';
-            // --- Ссылки репутации (Возврат к проверенным селекторам из карты) ---
-            const repContainer = repValueSpan?.closest('center') || userInfoCell; // Контейнер для поиска ссылок
-            const repHistoryLink = repContainer.querySelector(`a[href*="act=rep&view=history&mid=${data.authorId}"]`); if (repHistoryLink) data.repHistoryUrl = repHistoryLink.href;
-            const repPlusAnchor = repContainer.querySelector(`a[onclick*="rep_change_window_open"][title*="Поднять репутацию"]`); // Селектор из карты
-            if (repPlusAnchor) { data.repPlusUrl = repPlusAnchor.href; console.log(`[${logScopePrefix}] ✅ Rep Plus Link FOUND using verified selector: ${data.repPlusUrl}`); } else { console.log(`[${logScopePrefix}] ❌ Rep Plus Link NOT found using verified selector.`); }
-            const ipLink = userInfoCell.querySelector('.post-field-ip a'); if (ipLink) data.ipAddress = ipLink.title || ipLink.textContent?.trim() || '';
-
-            // --- Метаданные поста (Карта: ✅ / ℹ️) ---
-            const postNumLink = metaCell.querySelector('div[style="float:right"] a[onclick*="link_to_post"]'); if (postNumLink) data.postNumber = postNumLink.textContent?.trim().replace('#','') || '?';
-            const dateNode = Array.from(metaCell.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim().match(/(\d{1,2}\.\d{1,2}\.\d{2,4}|\Сегодня|\Вчера)/) && !node.parentElement?.closest('a')); if (dateNode) data.creationDate = dateNode.textContent?.trim() || '';
-            if (metaCell.querySelector('label.secheck input[name="selectedpids[]"]')) data.canModerate = true;
-
-            // --- Тело поста и редактирование (Карта: ✅ / ℹ️) ---
-            const postBodyDiv = postBodyCell.querySelector(`div.postcolor[id="post-${postId}"]`);
-            if (postBodyDiv) { const clonedContent = postBodyDiv.cloneNode(true); const editSpan = clonedContent.querySelector('span.edit'); if (editSpan) { data.isEdited = true; data.editTooltip = editSpan.textContent?.trim() || ''; const editLink = editSpan.querySelector('a'); data.editClass = (editLink && data.authorId && editLink.href.includes(`showuser=${data.authorId}`)) ? 'edited-by-self' : 'edited-by-other'; editSpan.remove(); } const signatureDiv = clonedContent.querySelector('div.signature'); if(signatureDiv) signatureDiv.remove(); data.postBodyHtml = clonedContent.innerHTML; }
-            const editReasonDiv = postBodyCell.querySelector(`div.post-edit-reason`); if (editReasonDiv) data.editReason = editReasonDiv.textContent?.trim() || '';
-
-            // --- Кнопки действий (Карта: ✅ / ℹ️ - Используем проверенные фильтры) ---
-            const rawActions = [];
-            rightButtonsCell.querySelectorAll('a.g-btn').forEach(button => rawActions.push({ element: button, text: button.textContent?.trim(), onclick: button.getAttribute('onclick'), href: button.href || '#' }));
-            const reportButton = leftButtonsCell.querySelector('a.g-btn[href*="act=report&t="]'); if(reportButton) rawActions.push({ element: reportButton, text: 'ЖАЛОБА', onclick: null, href: reportButton.href });
-
-             rawActions.forEach(action => {
-                 const { element, text, onclick, href } = action;
-                 let actionText = text; let actionUrl = href; let actionOnClick = onclick ? onclick.replace(/"/g, "'") : null;
-
-                 // Пропуск ненужных (включая "В ШАПКУ" по ID атрибута data-to-pinpost-id)
-                 if (text === 'ИМЯ' || element.hasAttribute('data-to-pinpost-id') || element.classList.contains('pinlink') || (onclick && (onclick.includes('--seMODhide') || onclick.includes('--seMODdel'))) || element.getAttribute('data-rel') === 'lyteframe' || text === 'В ШАПКУУЖЕ В ШАПКЕ') { return; }
-                 // Пропуск Karma "ПЛОХО"
-                 if (text === 'ПЛОХО' || (onclick && onclick.includes('ka_vote') && onclick.includes('-1'))) return;
-
-                 // Обработка известных
-                 if (element.matches('[data-quote-link]')) { return; } // Пока пропускаем цитату
-                 else if (element.id && element.id.startsWith('edit-but-')) { actionText = 'Изменить'; const fullEditLink = document.querySelector(`#${element.id}_menu a[href*='do=edit_post']`) || element; actionUrl = fullEditLink.href; actionOnClick = null; }
-                 else if (text === 'ЖАЛОБА') { actionText = 'Жалоба'; actionUrl = href; actionOnClick = null; }
-                 else if (text === 'ХОРОШО' || (onclick && onclick.includes('ka_vote') && onclick.includes('1'))) { actionText = 'Хорошо!'; actionUrl = '#'; actionOnClick = onclick ? onclick.replace(/"/g, "'") : null; }
-                 else if (!actionText) { actionText = element.title || '?'; }
-
-                 // Добавляем
-                 if (actionText !== '?') { data.actions.push({ text: actionText, url: actionUrl, onclick: actionOnClick }); }
-             });
-
-            return data;
-
-        } catch (error) { console.error(`[${logScopePrefix}] ❌ CRITICAL error during extraction:`, error); if (error.stack) console.error(error.stack); return null; }
-    }
-
-    /**
-     * ========================================================================
-     * ИНИЦИАЛИЗАЦИЯ И ЗАМЕНА ПОСТОВ (Main Logic) v1.3 - Без изменений
-     * ========================================================================
-     */
-    function initModernPosts() {
-        console.log(`${LOG_PREFIX} initModernPosts running...`);
-        const pinnedPostSelector = '#topic-pin-content > table.ipbtable[data-post]';
-        const allPostTables = document.querySelectorAll('table.ipbtable[data-post]');
-        const pinnedPostElement = document.querySelector(pinnedPostSelector);
-        let originalPosts = Array.from(allPostTables);
-        if (pinnedPostElement) { originalPosts = originalPosts.filter(el => el !== pinnedPostElement); originalPosts.unshift(pinnedPostElement); }
-        console.log(`${LOG_PREFIX} Found ${originalPosts.length} original post tables to process.`);
-        if (originalPosts.length === 0) return;
-
-        const postsToReplace = [];
-        originalPosts.forEach((originalPostTable, index) => {
-            const postData = extractPostData(originalPostTable);
-            if (postData) {
-                const newPostHtml = createPostHtml(postData);
-                const tempContainer = document.createElement('div'); tempContainer.innerHTML = newPostHtml;
-                const newPostElement = tempContainer.firstElementChild;
-                if (newPostElement) postsToReplace.push({ original: originalPostTable, new: newPostElement });
-                else { console.error(`${LOG_PREFIX} Failed to create new post element for ID: ${postData.postId}`); originalPostTable.style.display = ''; originalPostTable.style.visibility = 'visible'; }
-            } else { console.warn(`${LOG_PREFIX} Failed to extract data for post table ${index + 1} (ID: ${originalPostTable.dataset.post}), skipping replacement.`); originalPostTable.style.display = ''; originalPostTable.style.visibility = 'visible'; }
         });
 
-        console.log(`${LOG_PREFIX} Replacing ${postsToReplace.length} posts...`);
-        postsToReplace.forEach(pair => { if (pair.original.parentNode) pair.original.replaceWith(pair.new); else console.warn(`${LOG_PREFIX} Original post table ID ${pair.original.dataset.post} has no parentNode.`); });
-        console.log(`${LOG_PREFIX} Replacement finished.`);
+        console.log(`${LOG_PREFIX} Injected ${mockPostDataArray.length} mock posts.`);
 
-        addEventListeners();
+        addEventListeners(); // Добавляем обработчики к новым постам
     }
 
     /**
      * ========================================================================
-     * ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ (Event Listeners) v1.3 - Исправлено закрытие
+     * ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ (Event Listeners) v2.0 - Новая логика меню
      * ========================================================================
      */
     const listenerState = { added: false };
+    let activeMenu = null; // Храним ссылку на текущее открытое меню
 
     function addEventListeners() {
-        const postsContainer = document.body;
+        const container = document.body;
         if (listenerState.added) return;
-        // Используем 'mousedown' вместо 'click' для закрытия меню,
-        // так как он срабатывает раньше и может помочь избежать конфликтов.
-        postsContainer.addEventListener('mousedown', handleDelegatedInteraction); // ИЗМЕНЕНО НА MOUSEDOWN
+
+        // Используем 'click' для основного делегирования
+        container.addEventListener('click', handleDelegatedClick_v2);
         listenerState.added = true;
-        console.log(`${LOG_PREFIX} Added delegated Mousedown listener to body.`);
+        console.log(`${LOG_PREFIX} Added delegated Click listener to body.`);
     }
 
-    /** Универсальный обработчик Mousedown (делегированный) v1.3 */
-    function handleDelegatedInteraction(event) {
+    /** Универсальный обработчик кликов v2.0 */
+    function handleDelegatedClick_v2(event) {
         const target = event.target;
-        let consumed = false; // Флаг, что событие обработано элементом управления
+        let menuToToggle = null;
+        let triggerElement = null;
 
-        // Определяем клик на триггерах или внутри меню
-        const isActionTrigger = target.closest('.mp-actions-trigger');
-        const isNickLink = target.closest('.mp-author-nick');
-        const isInsideActionMenu = target.closest('.mp-actions-menu');
-        const isInsideUserMenu = target.closest('.mp-user-menu');
-        const isSpoilerHead = target.closest('.mp-body .sp-head');
+        // --- Определяем, был ли клик на триггере ---
+        const actionTrigger = target.closest('.mp-actions-trigger');
+        const nickLink = target.closest('.mp-author-nick');
 
-        // --- Переключение меню ---
-        if (isActionTrigger) {
-            event.stopPropagation(); // Остановить всплытие, чтобы body не закрыл меню
-            const menu = isActionTrigger.closest('.mp-actions-menu-container')?.querySelector('.mp-actions-menu');
-            toggleMenu(menu, isActionTrigger);
-            consumed = true;
-        } else if (isNickLink) {
-            event.preventDefault(); event.stopPropagation(); // Остановить всплытие и переход
-            const detailsContainer = isNickLink.closest('.mp-author-details');
-            if (!detailsContainer) return;
-            let userMenu = detailsContainer.querySelector('.mp-user-menu');
-            if (!userMenu) { // Создать если нет
-                 const postElement = isNickLink.closest('.mp-post');
-                 if (postElement) userMenu = createUserMenu(postElement);
-                 if (userMenu) detailsContainer.appendChild(userMenu);
-                 else { console.error(`${LOG_PREFIX} Failed to create user menu on demand.`); return; }
+        if (actionTrigger) {
+            triggerElement = actionTrigger;
+            const menuContainer = actionTrigger.closest('.mp-actions-menu-container');
+            menuToToggle = menuContainer?.querySelector('.mp-actions-menu');
+            event.stopPropagation(); // Останавливаем всплытие, если клик на триггере
+        } else if (nickLink) {
+            triggerElement = nickLink;
+            const detailsContainer = nickLink.closest('.mp-author-details');
+            if (detailsContainer) {
+                menuToToggle = detailsContainer.querySelector('.mp-user-menu');
+                // Создаем меню пользователя, если его нет
+                if (!menuToToggle) {
+                     const postElement = nickLink.closest('.mp-post');
+                     if (postElement) menuToToggle = createUserMenu(postElement);
+                     if (menuToToggle) detailsContainer.appendChild(menuToToggle);
+                     else { console.error(`${LOG_PREFIX} Failed to create user menu.`); return; }
+                }
             }
-            toggleMenu(userMenu, isNickLink);
-            consumed = true;
+            event.preventDefault(); // Предотвращаем переход по ссылке
+            event.stopPropagation(); // Останавливаем всплытие
         }
 
-        // --- Обработка кликов внутри меню ---
-        else if (isInsideUserMenu || isInsideActionMenu) {
-             // Специальная обработка для кнопки "+" репутации
+        // --- Логика переключения меню ---
+        if (menuToToggle) {
+             // Кликнули на триггер
+             if (menuToToggle === activeMenu) { // Если это меню уже активно
+                 closeMenu(activeMenu); // Закрываем его
+                 activeMenu = null;
+             } else { // Если кликнули на триггер другого или закрытого меню
+                 closeMenu(activeMenu); // Закрываем предыдущее активное (если было)
+                 openMenu(menuToToggle, triggerElement); // Открываем новое
+                 activeMenu = menuToToggle; // Запоминаем новое активное меню
+             }
+             return; // Завершаем обработку, так как клик был на триггере
+        }
+
+        // --- Обработка кликов ВНУТРИ МЕНЮ ---
+        const insideMenu = target.closest('.mp-actions-menu, .mp-user-menu');
+        if (insideMenu) {
+             // Клик на кнопке "+" репутации
              const repPlusButton = target.closest('.mp-user-menu .rep-plus');
              if (repPlusButton) {
-                 handleRepPlusClick(event, repPlusButton); // Обрабатываем клик
-                 consumed = true; // Считаем событие обработанным, чтобы не закрыть меню
-             } else {
-                  // Для других кликов внутри меню (например, по ссылкам) - просто останавливаем всплытие, чтобы не закрыть меню
-                  event.stopPropagation();
-                  consumed = true; // Считаем обработанным
-                  // Закрываем меню ТОЛЬКО после перехода по ссылке (если это ссылка)
-                  if (target.tagName === 'A' && target.href && !target.onclick) { // Если это обычная ссылка
-                        setTimeout(closeAllMenus, 100); // Небольшая задержка для перехода
-                  }
+                 handleRepPlusClick(event, repPlusButton); // Обрабатываем, закрываем меню
+                 activeMenu = null; // Сбрасываем активное меню
+                 return; // Завершаем
              }
+             // Клик по обычной ссылке в меню
+             if (target.tagName === 'A' && target.href && !target.onclick) {
+                 // Не останавливаем всплытие (stopPropagation), чтобы ссылка сработала
+                 // Закрываем меню с небольшой задержкой
+                 setTimeout(() => { closeMenu(activeMenu); activeMenu = null; }, 100);
+                 return; // Завершаем
+             }
+             // Клик по элементу с onclick (например, карма "Хорошо")
+             if (target.onclick) {
+                  // Не останавливаем всплытие, чтобы onclick сработал
+                 setTimeout(() => { closeMenu(activeMenu); activeMenu = null; }, 100); // Закрываем после отработки onclick
+                  return; // Завершаем
+             }
+
+             // Любой другой клик внутри меню - просто останавливаем всплытие
+             event.stopPropagation();
+             return; // Завершаем
         }
 
-        // --- Переключение спойлера ---
-        else if (isSpoilerHead) {
-            handleSpoilerToggle(isSpoilerHead);
-            // Не устанавливаем consumed = true, чтобы клик по спойлеру закрывал меню
+        // --- Обработка клика на СПОЙЛЕР ---
+        const spoilerHead = target.closest('.mp-body .sp-head');
+        if (spoilerHead) {
+             handleSpoilerToggle(spoilerHead);
+             // НЕ останавливаем всплытие, чтобы клик по спойлеру закрыл меню
+             // НЕ устанавливаем consumed = true
         }
 
-
-        // --- Закрытие меню при клике вне ---
-        // Срабатывает, только если событие не было 'consumed' выше
-        if (!consumed) {
-            // console.log(`${LOG_PREFIX} Mousedown outside interactive elements detected, closing all menus.`);
-            closeAllMenus();
+        // --- Если клик был НЕ на триггере и НЕ внутри меню ---
+        // Закрываем активное меню (если оно есть)
+        if (activeMenu) {
+             // console.log(`${LOG_PREFIX} Click outside detected, closing active menu.`);
+             closeMenu(activeMenu);
+             activeMenu = null;
         }
     }
 
-    // --- Функции открытия/закрытия/позиционирования меню (v1.3) ---
-    function toggleMenu(menuElement, triggerElement) {
-        if (!menuElement || !triggerElement) return;
-        const isActive = menuElement.classList.contains('visible');
-        // Закрываем все *другие* меню
-        closeAllOtherMenus(menuElement);
-        // Переключаем текущее
-        if (isActive) {
-            closeMenu(menuElement);
-        } else {
-            openMenu(menuElement, triggerElement);
-        }
-    }
 
+    // --- Функции открытия/закрытия/позиционирования меню (v2.0 - Absolute) ---
     function openMenu(menuElement, triggerElement) {
         if (!menuElement || !triggerElement) return;
-        menuElement.classList.add('visible'); // Сначала добавляем класс
-        positionMenu(triggerElement, menuElement); // Потом позиционируем
+        positionMenu(triggerElement, menuElement); // Позиционируем перед показом
+        menuElement.classList.add('visible');
         // console.log(`${LOG_PREFIX} Opened menu:`, menuElement);
     }
 
@@ -295,66 +273,64 @@
         // console.log(`${LOG_PREFIX} Closed menu:`, menuElement);
     }
 
-    function closeAllMenus() {
-        document.querySelectorAll('.mp-actions-menu.visible, .mp-user-menu.visible').forEach(closeMenu);
-        // console.log(`${LOG_PREFIX} Closed ALL menus.`);
-    }
-    // Вспомогательная функция для закрытия всех меню, КРОМЕ указанного
-    function closeAllOtherMenus(excludeMenu = null) {
-         document.querySelectorAll('.mp-actions-menu.visible, .mp-user-menu.visible').forEach(menu => {
-             if (menu !== excludeMenu) {
-                 closeMenu(menu);
-             }
-         });
-    }
-
-    // Улучшенная функция позиционирования
+    // Позиционирование с position: absolute
     function positionMenu(triggerElement, menuElement) {
         if (!menuElement || !triggerElement) return;
-        menuElement.style.position = 'fixed'; // Используем fixed для позиционирования относительно viewport
-        menuElement.style.display = 'block'; // Для расчета размеров
 
-        const triggerRect = triggerElement.getBoundingClientRect();
-        const menuRect = menuElement.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
+        const container = menuElement.parentElement; // Родительский контейнер (.mp-actions-menu-container или .mp-author-details)
+        if (!container) return;
 
-        let top = triggerRect.bottom + 2;
-        let left = triggerRect.left;
-
-        // Проверка выхода за нижний край
-        if (top + menuRect.height > viewportHeight - 5) {
-            let topAbove = triggerRect.top - menuRect.height - 2;
-            // Размещаем сверху, только если оно не уходит выше верха экрана
-            if (topAbove > 5) {
-                top = topAbove;
-            } // Иначе оставляем снизу (лучше обрезать, чем над шапкой)
+        // Убедимся, что контейнер позиционирован
+        if (getComputedStyle(container).position === 'static') {
+            container.style.position = 'relative';
         }
 
-        // Проверка выхода за правый край
-         if (left + menuRect.width > viewportWidth - 5) {
-             left = triggerRect.right - menuRect.width; // Выровнять по правому краю триггера
-         }
+        menuElement.style.position = 'absolute';
+        menuElement.style.display = 'block'; // Для расчета размеров
 
-         // Проверка выхода за левый край
-         left = Math.max(5, left); // Не даем уйти левее 5px от края экрана
+        const menuRect = menuElement.getBoundingClientRect(); // Размеры самого меню
+        const triggerRect = triggerElement.getBoundingClientRect(); // Позиция триггера относительно viewport
+        const containerRect = container.getBoundingClientRect(); // Позиция контейнера относительно viewport
 
-         // Применяем координаты fixed
-         menuElement.style.top = `${top}px`;
-         menuElement.style.left = `${left}px`;
-         menuElement.style.right = 'auto'; // Сбрасываем right
-         menuElement.style.bottom = 'auto'; // Сбрасываем bottom
+        let top = triggerRect.bottom - containerRect.top + 2; // Снизу триггера, относительно контейнера
+        let left = 'auto';
+        let right = 'auto';
 
-        // console.log(`${LOG_PREFIX} Positioned menu FIXED at top: ${top}px, left: ${left}px`);
+        // Выбор позиционирования по горизонтали
+        if (menuElement.classList.contains('mp-actions-menu')) {
+            right = '0px'; // Меню действий выравниваем по правому краю контейнера
+        } else {
+            left = triggerRect.left - containerRect.left; // Меню юзера по левому краю ника
+            // Проверка выхода за правый край контейнера (или viewport)
+             if (left + menuRect.width > containerRect.width) {
+                 left = 'auto';
+                 right = '0px'; // Если не влезает, прижать к правому краю контейнера
+             }
+             // Проверка выхода за левый край контейнера
+             if (left < 0) { left = '0px'; }
+        }
+
+        // Проверка выхода за нижний край контейнера (или viewport)
+        if (top + menuRect.height > containerRect.height && (triggerRect.top - containerRect.top) > menuRect.height) {
+            // Если вылазит снизу и есть место сверху над триггером внутри контейнера
+            top = triggerRect.top - containerRect.top - menuRect.height - 2;
+        }
+
+        menuElement.style.top = `${top}px`;
+        menuElement.style.left = typeof left === 'string' ? left : `${left}px`;
+        menuElement.style.right = typeof right === 'string' ? right : `${right}px`;
+        menuElement.style.bottom = 'auto';
+
+        // console.log(`${LOG_PREFIX} Positioned ABSOLUTE menu at T:${top}px, L:${left}, R:${right}`);
     }
 
-    // --- Остальные обработчики (v1.3 - добавлена отладка спойлера) ---
+    // --- Остальные обработчики (v2.0) ---
     function handleSpoilerToggle(header) {
         const spoilerBody = header.nextElementSibling;
         if (spoilerBody?.classList.contains('sp-body')) {
-            const isOpen = header.classList.toggle('open'); // Меняем класс на ШАПКЕ
-            spoilerBody.classList.toggle('open', isOpen); // Синхронизируем класс на теле
-             console.log(`${LOG_PREFIX} Spoiler toggled. Header has open class: ${header.classList.contains('open')}`);
+            const isOpen = header.classList.toggle('open');
+            spoilerBody.classList.toggle('open', isOpen); // Синхронизируем класс
+            // console.log(`${LOG_PREFIX} Spoiler toggled. Header has open class: ${isOpen}`);
         }
     }
 
@@ -364,42 +340,38 @@
          if (url && url !== '#') {
              const authorId = button.closest('.mp-post')?.dataset?.authorId || Math.random();
              window.open(url, `rep_${authorId}`, 'width=500,height=300,resizable=yes,scrollbars=yes');
-         } else { console.warn(`${LOG_PREFIX} Invalid URL for rep plus button:`, button); }
-         closeAllMenus(); // Закрываем меню после клика
+         }
+         closeMenu(button.closest('.mp-user-menu')); // Закрываем только это меню
+         activeMenu = null; // Сбрасываем активное меню
      }
 
-    /** Создает DOM элемент меню пользователя v1.3 */
+    /** Создает DOM элемент меню пользователя v2.0 */
     function createUserMenu(postElement) {
         const authorId = postElement.dataset.authorId; const nickElement = postElement.querySelector('.mp-author-nick');
         const profileUrl = nickElement?.href || '#'; const authorNick = nickElement?.textContent.trim() || '';
-        let reputation = '0', repHistoryUrl = '#', repPlusUrl = '#';
-        const originalPostTable = document.querySelector(`table.ipbtable[data-post="${postElement.dataset.postId}"]`);
-        if (originalPostTable && authorId) {
-            const repContainer = originalPostTable.querySelector(`span[data-member-rep="${authorId}"]`)?.closest('center') || originalPostTable.querySelector(`#pb-${postId}-r2 td[class^="post"]:first-child`);
-            if(repContainer){
-                const repValueSpan = repContainer.querySelector(`span[data-member-rep="${authorId}"]`); if (repValueSpan) reputation = repValueSpan.textContent?.trim() || '0';
-                const repHistoryLink = repContainer.querySelector(`a[href*="act=rep&view=history&mid=${authorId}"]`); if (repHistoryLink) repHistoryUrl = repHistoryLink.href;
-                const repPlusAnchor = repContainer.querySelector(`a[onclick*="rep_change_window_open"][title*="Поднять репутацию"]`); // Используем селектор из карты
-                if (repPlusAnchor) repPlusUrl = repPlusAnchor.href;
-            }
-        } else { const repElement = postElement.querySelector('.mp-rep'); if(repElement) reputation = repElement.textContent.match(/⭐\s*([\d\.\,]+)/)?.[1] || '0'; }
-        if (!authorId) { console.error(`${LOG_PREFIX} Create User Menu: Author ID missing.`); return null; }
+        // Берем данные репутации из ЗАГЛУШКИ в этом режиме
+        const mockData = mockPostDataArray.find(d => d.postId === postElement.dataset.postId);
+        const reputation = mockData?.reputation || '0';
+        const repHistoryUrl = mockData?.repHistoryUrl || '#';
+        const repPlusUrl = mockData?.repPlusUrl || '#'; // URL из заглушки
+
+        if (!authorId) return null;
         const menu = document.createElement('ul'); menu.className = 'mp-user-menu';
         menu.innerHTML = `<li><a href="${profileUrl}" target="_blank">Профиль</a></li><li><a href="https://4pda.to/forum/index.php?act=qms&mid=${authorId}" target="qms_${authorId}" onclick="window.open(this.href,this.target,'width=480,height=600,resizable=yes,scrollbars=yes'); return false;">Сообщения</a></li><li><a href="https://4pda.to/forum/index.php?act=search&author_id=${authorId}&noform=1" target="_blank">Найти сообщения</a></li><hr><li class="rep-item"><span class="rep-value"><a href="${repHistoryUrl}" title="История репутации" target="_blank">⭐ ${reputation}</a></span>${repPlusUrl !== '#' ? `<a href="${repPlusUrl}" class="rep-plus" title="Поднять репутацию">+</a>` : ''}</li>`;
         return menu;
      }
 
-    /** Закрывает все меню - обертка */
-    function closeAllMenusOnClickOutside() { closeAllMenus(); }
-
     /**
      * ========================================================================
-     * ТОЧКА ВХОДА (Initialization) v1.3 - Без изменений
+     * ТОЧКА ВХОДА (Initialization) v2.0
      * ========================================================================
      */
     try {
-        if (document.readyState === 'interactive' || document.readyState === 'complete') { initModernPosts(); }
-        else { document.addEventListener('DOMContentLoaded', initModernPosts, { once: true }); }
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initMockupPosts(); // Запускаем вставку болванок
+        } else {
+            document.addEventListener('DOMContentLoaded', initMockupPosts, { once: true });
+        }
     } catch (error) { console.error(`${LOG_PREFIX} Critical error during initialization setup:`, error); if (error.stack) console.error(error.stack); }
 
 })(); // Конец основной IIFE
