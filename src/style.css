@@ -17,48 +17,26 @@
 }
 
 /* --- Общие стили --- */
-body {
-    background-color: var(--mp-background-color) !important;
-    font-family: var(--mp-font-family);
-    color: var(--mp-text-color);
-    line-height: 1.5;
-}
+body { background-color: var(--mp-background-color) !important; font-family: var(--mp-font-family); color: var(--mp-text-color); line-height: 1.5; }
 
 /* --- Скрытие Оригинальных Элементов --- */
-/* Скрываем таблицы постов */
 #topic-pin-content > table.ipbtable[data-post],
-table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) {
-    display: none !important;
-    visibility: hidden;
-}
-/* Скрываем некоторые глобальные блоки (можно добавлять по мере необходимости) */
-body > div#ipbwrapper > div:has(> #yandex_ad_R-141239-1), /* Блок с рекламой под лого */
-div.copyright, /* Блок копирайта */
-body > div[align="center"]:has(> script[src*="top100"]), /* Блок счетчиков */
-body > div[align="center"]:has(> .social-icons), /* Блок соц. иконок */
-#fast-reply /* Блок быстрого ответа (пока скроем) */
- {
-     display: none !important;
- }
-/* Панель модерации под постами */
- .borderwrap > .bar {
-   /* display: none !important; */ /* Пока оставляем видимой для отладки */
- }
+table.ipbtable[data-post]:not(#topic-pin-content > table.ipbtable[data-post]) { display: none !important; visibility: hidden; }
+body > div#ipbwrapper > div:has(> #yandex_ad_R-141239-1), div.copyright,
+body > div[align="center"]:has(> script[src*="top100"]),
+body > div[align="center"]:has(> .social-icons),
+#fast-reply { display: none !important; }
+/* .borderwrap > .bar { display: none !important; } */ /* Панель модерации */
 
 
 /* --- Стили для нового поста --- */
-.mp-post {
-    background-color: var(--mp-post-background-color); border-radius: var(--mp-border-radius);
-    padding: var(--mp-post-padding); margin: 0 auto var(--mp-post-margin-bottom) auto;
-    box-shadow: var(--mp-box-shadow); border: 1px solid var(--mp-border-color);
-    overflow: visible; max-width: 900px; position: relative;
-}
+.mp-post { background-color: var(--mp-post-background-color); border-radius: var(--mp-border-radius); padding: var(--mp-post-padding); margin: 0 auto var(--mp-post-margin-bottom) auto; box-shadow: var(--mp-box-shadow); border: 1px solid var(--mp-border-color); overflow: visible; max-width: 900px; position: relative; }
 
 /* --- Шапка поста --- */
 .mp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee; gap: 10px; }
 .mp-author-info { display: flex; align-items: flex-start; gap: 10px; flex-grow: 1; }
 .mp-avatar { width: var(--mp-avatar-size); height: var(--mp-avatar-size); border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid #eee; background-color: #eee; }
-.mp-author-details { display: flex; flex-direction: column; padding-top: 2px; flex-grow: 1; position: relative; }
+.mp-author-details { display: flex; flex-direction: column; padding-top: 2px; flex-grow: 1; position: relative; } /* Relative для меню юзера */
 .mp-author-line1 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
 .mp-author-nick { font-size: 1rem; font-weight: 600; color: var(--mp-text-color); text-decoration: none; margin-right: 5px; cursor: pointer; }
 .mp-author-nick:hover { color: var(--mp-link-hover-color); text-decoration: underline; }
@@ -80,11 +58,17 @@ body > div[align="center"]:has(> .social-icons), /* Блок соц. иконо�
 .mp-secheck input:checked + .check::after { content: ''; display: block; position: absolute; top: 1px; left: 5px; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
 /* Меню действий */
-.mp-actions-menu-container { position: relative; } /* Контейнер должен быть позиционирован */
+.mp-actions-menu-container { position: relative; } /* Контейнер для позиционирования меню */
 .mp-actions-trigger { background: none; border: 1px solid transparent; color: var(--mp-text-color-muted); font-size: 1.3rem; font-weight: bold; padding: 0 6px; cursor: pointer; line-height: 1; border-radius: 4px; height: 28px; width: 28px; display: flex; align-items: center; justify-content: center; }
 .mp-actions-trigger:hover { color: var(--mp-link-color); background-color: #f0f2f5; border-color: var(--mp-border-color); }
-.mp-actions-menu { display: none; position: absolute; background-color: var(--mp-post-background-color); border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 8px 0; margin: 0; list-style: none; min-width: 160px; z-index: 1050; overflow: hidden; }
-.mp-actions-menu.visible { display: block; } /* Показ меню */
+.mp-actions-menu {
+    display: none; /* Управляется классом .visible */
+    position: fixed; /* ИЗМЕНЕНО: Позиционируем относительно viewport */
+    background-color: var(--mp-post-background-color); border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Тень чуть заметнее */
+    padding: 8px 0; margin: 0; list-style: none; min-width: 160px; z-index: 1055; /* Еще выше */ overflow: hidden;
+    transform: translateZ(0); /* Хак для рендеринга поверх */
+}
+.mp-actions-menu.visible { display: block; }
 .mp-actions-menu li a { display: block; padding: 8px 16px; color: var(--mp-text-color); text-decoration: none; white-space: nowrap; font-size: 0.9rem; transition: background-color 0.15s ease-in-out; }
 .mp-actions-menu li a:hover { background-color: #f0f2f5; }
 .mp-actions-menu li a:active { background-color: #e9ecef; }
@@ -96,16 +80,18 @@ body > div[align="center"]:has(> .social-icons), /* Блок соц. иконо�
 .mp-body blockquote p:first-child, .mp-body .quote p:first-child { margin-top: 0; }
 .mp-body blockquote p:last-child, .mp-body .quote p:last-child { margin-bottom: 0; }
 
-/* Спойлеры v1.2 */
+/* Спойлеры v1.3 */
 .mp-body .spoiler { border: 1px solid var(--mp-spoiler-border-color); border-radius: var(--mp-border-radius); margin: 15px 0; overflow: hidden; background-color: #f9f9f9; }
-.mp-body .sp-head { background-color: transparent; padding: 10px 15px 10px 35px; /* Увеличил отступ для стрелки */ cursor: pointer; font-weight: 600; color: var(--mp-text-color); border-bottom: 1px solid transparent; transition: background-color 0.2s ease, border-color 0.2s ease; position: relative; list-style: none; }
+.mp-body .sp-head { background-color: transparent; padding: 10px 15px 10px 35px; cursor: pointer; font-weight: 600; color: var(--mp-text-color); border-bottom: 1px solid transparent; transition: background-color 0.2s ease, border-color 0.2s ease; position: relative; list-style: none; }
 /* Стрелочка для спойлера */
-.mp-body .sp-head::before { content: '▶'; position: absolute; left: 15px; /* Подвинул правее */ top: 50%; transform: translateY(-50%) rotate(0deg); transition: transform 0.2s ease-out; /* Плавнее */ font-size: 0.8em; color: var(--mp-text-color-muted); display: inline-block; }
-.mp-body .sp-head.open::before { transform: translateY(-50%) rotate(90deg); } /* Поворот при открытии */
+.mp-body .sp-head::before { content: '▶'; position: absolute; left: 15px; top: 50%; transform: translateY(-50%) rotate(0deg); transition: transform 0.2s ease-out; font-size: 0.8em; color: var(--mp-text-color-muted); display: inline-block; }
+/* Поворот стрелки при классе .open на ШАПКЕ спойлера */
+.mp-body .sp-head.open::before { transform: translateY(-50%) rotate(90deg); }
 .mp-body .sp-head:hover { background-color: #f0f0f0; }
 .mp-body .sp-head.open { border-bottom-color: var(--mp-spoiler-border-color); } /* Граница при открытии */
 .mp-body .sp-body { padding: 15px; background-color: #ffffff; display: none; } /* Тело скрыто */
-.mp-body .sp-body.open { display: block; } /* Тело показывается классом open */
+/* Показ тела при классе .open на ТЕЛЕ спойлера */
+.mp-body .sp-body.open { display: block; }
 
 
 .mp-body img { max-width: 100%; height: auto; border-radius: 4px; margin: 5px 0; display: block; }
@@ -123,7 +109,13 @@ a { color: var(--mp-link-color); text-decoration: none; }
 a:hover { color: var(--mp-link-hover-color); text-decoration: underline; }
 
 /* --- Стили для меню пользователя --- */
-.mp-user-menu { display: none; position: absolute; background-color: var(--mp-post-background-color); border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 8px 0; margin: 0; list-style: none; min-width: 200px; z-index: 1051; overflow: hidden; }
+.mp-user-menu {
+    display: none; /* Управляется классом .visible */
+    position: fixed; /* ИЗМЕНЕНО: Позиционируем относительно viewport */
+    background-color: var(--mp-post-background-color); border: 1px solid var(--mp-border-color); border-radius: var(--mp-border-radius); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Тень чуть заметнее */
+    padding: 8px 0; margin: 0; list-style: none; min-width: 200px; z-index: 1055; /* Еще выше */ overflow: hidden;
+    transform: translateZ(0); /* Хак для рендеринга поверх */
+}
 .mp-user-menu.visible { display: block; } /* Показ меню */
 .mp-user-menu li a, .mp-user-menu li span { display: block; padding: 8px 16px; color: var(--mp-text-color); text-decoration: none; white-space: nowrap; font-size: 0.9rem; transition: background-color 0.15s ease-in-out; }
 .mp-user-menu li a:hover { background-color: #f0f2f5; }
